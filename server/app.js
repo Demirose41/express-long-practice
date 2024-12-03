@@ -2,18 +2,28 @@ const express = require('express');
 const app = express();
 const dogs = require('./routes/dogs')
 
+
 app.use("/static", express.static("assets"))
 app.use(express.json())
 app.use(dogs)
 
+
 const errorHandling = (err, req, res, next) => {
-  res.status(500).json({
-    msg: err.message,
-    success: false,
-  });
+  if(process.env.NODE_ENV === 'development'){
+    res.json({
+      message: err.message,
+      statuscode: err.statusCode || 500,
+      stack: err.stack 
+    });
+  } else {
+    res.json({
+      message: err.message,
+      statuscode: err.statusCode || 500
+    });
+  }
 };
 
-const resourceNotFound = (err, req, res, next) => {
+const resourceNotFound = ( req, res, next) => {
   res.status(404)
   throw new Error("The requested resource coudln't be found")
 }
@@ -54,8 +64,8 @@ app.get('/test-error', async (req, res, next) => {
 });
 
 
-app.use(errorHandling)
 app.use("*", resourceNotFound)
+app.use(errorHandling)
 
-const port = 5000;
-app.listen(port, () => console.log('Server is listening on port', port));
+const port = process.env.PORT || 8080;
+app.listen(port, () => console.log(`Server is listening on port: ${port}\n NODE_ENV: ${process.env.NODE_ENV}`));
