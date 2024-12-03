@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
+const dogs = require('./routes/dogs')
 
 app.use("/static", express.static("assets"))
 app.use(express.json())
+app.use(dogs)
 
 const errorHandling = (err, req, res, next) => {
   res.status(500).json({
@@ -51,9 +53,9 @@ app.get('/test-error', async (req, res, next) => {
   }
 });
 
-app.use("*", resourceNotFound)
 
 app.use(errorHandling)
+app.use("*", resourceNotFound)
 
 const port = 5000;
 app.listen(port, () => console.log('Server is listening on port', port));
