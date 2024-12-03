@@ -11,6 +11,21 @@ const errorHandling = (err, req, res, next) => {
   });
 };
 
+const resourceNotFound = (err, req, res, next) => {
+  res.status(404)
+  throw new Error("The requested resource coudln't be found")
+}
+
+const logger = (req, res, next) => {
+  console.log("url:", req.url)
+  res.on('finish', () => {
+    console.log("\n StatusCode: ", res.statusCode )
+  })
+  next()
+}
+
+app.use(logger)
+
 // For testing purposes, GET /
 app.get('/', (req, res) => {
   res.json("Express server running. No content provided at root level. Please use another route.");
@@ -35,6 +50,8 @@ app.get('/test-error', async (req, res, next) => {
     next(err)
   }
 });
+
+app.use("*", resourceNotFound)
 
 app.use(errorHandling)
 
